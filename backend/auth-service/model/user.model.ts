@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-interface IUser extends mongoose.Document {
+export interface IUser extends mongoose.Document {
+    _id: mongoose.Types.ObjectId;
     username: string;
     email: string;
     password: string;
@@ -41,7 +42,7 @@ userSchema.pre('save', async function(next) {
     }
 });
 
-// Method to compare password
+// Method to compare password during login
 userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
     return bcrypt.compare(candidatePassword, this.password);
 };
