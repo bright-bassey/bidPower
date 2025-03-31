@@ -1,10 +1,12 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { connect as natsConnect, StringCodec } from 'nats';
 import paymentRoutes from './routes/payment.routes';
 import Payment, { PaymentMethod, PaymentStatus } from './model/payment.model';
+import { AppError, handleError } from './service/error.service';
+import { PaymentService } from './service/payment.service';
 
 dotenv.config();
 
@@ -38,64 +40,22 @@ async function setupNats() {
           
           const { invoiceId, userId, amount } = data;
           
-          // Create payment record
-          const payment = new Payment({
+          // Create payment using PaymentService
+          await PaymentService.createPayment(
             invoiceId,
             userId,
             amount,
-            method: PaymentMethod.CREDIT_CARD, // Default method
-            status: PaymentStatus.PROCESSING,
-            paymentDetails: {
+            PaymentMethod.CREDIT_CARD,
+            {
               // In a real app, this would come from the user or a secure storage
               cardHolder: 'Test User',
-              cardNumber: '**** **** **** 1234' // Never store full card numbers
+              cardNumber: '**** **** **** 1234' 
             }
-          });
-          
-          // Generate a transaction ID
-          payment.transactionId = `txn_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
-          
-          await payment.save();
-          
-          // Simulate payment processing
-          setTimeout(async () => {
-            try {
-              // Simulate successful payment 90% of the time
-              const isSuccessful = Math.random() < 0.9;
-              
-              payment.status = isSuccessful ? PaymentStatus.COMPLETED : PaymentStatus.FAILED;
-              
-              if (isSuccessful) {
-                payment.completedAt = new Date();
-              }
-              
-              await payment.save();
-              
-              // Publish payment result event
-              await nc.publish('payment.completed', sc.encode(JSON.stringify({
-                paymentId: payment._id,
-                invoiceId: payment.invoiceId,
-                status: payment.status,
-                transactionId: payment.transactionId
-              })));
-              
-              // If payment is successful, update invoice status
-              if (isSuccessful) {
-                await nc.publish('update.invoice', sc.encode(JSON.stringify({
-                  invoiceId: payment.invoiceId,
-                  status: 'paid',
-                  paymentId: payment._id
-                })));
-              }
-              
-              console.log(`Payment ${payment._id} processed with status: ${payment.status}`);
-            } catch (error) {
-              console.error('Error finalizing payment:', error);
-            }
-          }, 2000); // Simulate 2 second payment processing time
+          );
           
         } catch (error) {
-          console.error('Error processing payment request:', error);
+          const appError = handleError(error);
+          console.error('Error processing payment request:', appError);
         }
       }
     })();
@@ -115,6 +75,24 @@ app.use('/api/payments', paymentRoutes);
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
+});
+
+// Global error handling middleware
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  const appError = handleError(err);
+  console.error('Unhandled error:', appError);
+  
+  res.status(appError.statusCode).json({
+    success: false,
+    message: appError.message
+  });
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (error: Error) => {
+  console.error('Unhandled Promise Rejection:', error);
+  // In production, you might want to exit the process here
+  // process.exit(1);
 });
 
 // Start the server
