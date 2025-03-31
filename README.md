@@ -91,7 +91,7 @@ VITE_PAYMENT_SERVICE_URL=http://localhost:4005
 Run all services using Docker Compose:
 
 ```bash
-docker-compose up --build
+docker-compose up --build -d
 ```
 
 The application will be available at:
