@@ -44,7 +44,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     console.log(`Initializing socket connection to: ${notificationServiceUrl}`);
 
-    // Don't create a new socket if one already exists and is connected
+   
     if (socketRef.current?.connected) {
       console.log("Socket already connected, reusing existing connection");
       return;
@@ -69,9 +69,9 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         reconnectionDelay: 1000,
         timeout: 20000,
         autoConnect: true,
-        forceNew: true, // Try with a fresh connection to avoid stale state
+        forceNew: true, // Trying with a fresh connection to avoid stale state
         auth: {
-          timestamp: new Date().toISOString(), // Add dynamic auth to prevent caching
+          timestamp: new Date().toISOString(), 
         },
       });
 
@@ -138,7 +138,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         setLastError(errorMsg);
       });
 
-      // Make sure it connects
+      
       if (!newSocket.connected) {
         newSocket.connect();
       }

@@ -46,8 +46,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Get current user ID
   useEffect(() => {
-    // In a real app, get this from an auth context or service
-    // For now, use our existing mock userId from local storage or generate a new one
+    // In a real app, this should be gotten from an auth context or service, but due time contraints,
+    // I did it this way
+    // using existing mock userId from local storage or generating a new one
     const storedUserId = localStorage.getItem("userId");
     if (storedUserId) {
       setUserId(storedUserId);

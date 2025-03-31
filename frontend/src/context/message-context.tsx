@@ -6,7 +6,7 @@ import {
   useRef,
   useCallback,
 } from "react";
-import { useSocket } from "../../../context/socket-context";
+import { useSocket } from "./socket-context";
 
 interface Message {
   id: string;

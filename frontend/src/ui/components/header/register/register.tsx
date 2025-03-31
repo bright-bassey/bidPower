@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "../../../../../context/auth-context";
+import { useAuth } from "../../../../context/auth-context";
 
 interface RegisterFormData {
   username: string;

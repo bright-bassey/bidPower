@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { RoomProvider } from "../../contexts/room-context";
+import { RoomProvider } from "../../context/room-context";
 import Sidebar from "../components/chat/sidebar";
 
 const MainLayout = () => {

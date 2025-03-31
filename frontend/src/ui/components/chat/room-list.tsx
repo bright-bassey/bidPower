@@ -1,4 +1,4 @@
-import { useRooms } from "../../../contexts/room-context";
+import { useRooms } from "../../../context/room-context";
 import { useNavigate } from "react-router-dom";
 
 const RoomList = () => {

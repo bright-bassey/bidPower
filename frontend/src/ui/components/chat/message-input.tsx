@@ -1,5 +1,5 @@
 import React, { useState, FormEvent } from "react";
-import { useMessages } from "./message-context";
+import { useMessages } from "../../../context/message-context";
 
 interface MessageInputProps {
   roomId: string;

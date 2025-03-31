@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useRooms } from "../../../contexts/room-context";
+import { useRooms } from "../../../context/room-context";
 import { CreateRoomPayload } from "../../../services/room.service";
 
 interface CreateRoomModalProps {

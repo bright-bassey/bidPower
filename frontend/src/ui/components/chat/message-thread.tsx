@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSocket } from "../../../context/socket-context";
-import { useMessages } from "./message-context";
+import { useMessages } from "../../../context/message-context";
 // import { useRooms } from "../../../contexts/room-context";
 
 interface MessageThreadProps {

@@ -1,4 +1,4 @@
-import { useRooms } from "../../../contexts/room-context";
+import { useRooms } from "../../../context/room-context";
 
 const WelcomePage = () => {
   const { rooms } = useRooms();

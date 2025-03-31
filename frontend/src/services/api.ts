@@ -14,7 +14,7 @@ const fetchWithTimeout = (url: string, options: RequestInit = {}, timeout = DEFA
   const fetchOptions = {
     ...options,
     signal,
-    // Don't set credentials by default
+    
   };
 
   console.log('Making fetch request to:', url, 'with options:', JSON.stringify(fetchOptions, null, 2));
@@ -45,6 +45,7 @@ const fetchWithTimeout = (url: string, options: RequestInit = {}, timeout = DEFA
             // Add status and statusText to error data
             errorData.status = response.status;
             errorData.statusText = response.statusText;
+            errorData.message = response
             
             return Promise.reject(errorData);
           })
@@ -52,7 +53,7 @@ const fetchWithTimeout = (url: string, options: RequestInit = {}, timeout = DEFA
             console.error('Error parsing error response:', parseError);
             // If we can't even get the text, return a generic error
             return Promise.reject({ 
-              message: `HTTP Error ${response.status}: ${response.statusText}`,
+              message: `HTTP Error kkk ${response.status}: ${response.status}`,
               status: response.status,
               statusText: response.statusText
             });
@@ -118,7 +119,7 @@ const api = {
         'Content-Type': 'application/json',
         ...headers
       },
-      // If credentials aren't specified, don't include them
+      
       ...(credentials ? { credentials } : {}),
       body: JSON.stringify(data),
       ...restOptions

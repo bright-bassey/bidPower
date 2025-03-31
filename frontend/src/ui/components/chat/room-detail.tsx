@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { useRooms } from "../../../contexts/room-context";
+import { useRooms } from "../../../context/room-context";
 import { useParams, useNavigate } from "react-router-dom";
 import roomService from "../../../services/room.service";
 import biddingService from "../../../services/bidding.service";
-import { useMessages } from "./message-context";
+import { useMessages } from "../../../context/message-context";
 import { useSocket } from "../../../context/socket-context";
 // import { useNotifications } from "../../../context/notification-context";
 import MessageThread from "./message-thread";

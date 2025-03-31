@@ -91,7 +91,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (error: Error) => {
   console.error('Unhandled Promise Rejection:', error);
-  // In production, you might want to exit the process here
   // process.exit(1);
 });
 
