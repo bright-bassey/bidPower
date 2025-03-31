@@ -1,14 +1,10 @@
-import { Router, RequestHandler } from 'express';
-import { 
-  placeBid, 
-  getBidsByRoom, 
-  getHighestBid 
-} from '../controller/bidding.controller';
+import { Router } from 'express';
+import { biddingController } from '../controller/bidding.controller';
 
 const router = Router();
 
-router.post('/', placeBid as RequestHandler);
-router.get('/room/:roomId', getBidsByRoom as RequestHandler);
-router.get('/room/:roomId/highest', getHighestBid as RequestHandler);
+router.post('/', biddingController.placeBid);
+router.get('/room/:roomId', biddingController.getBidsByRoom);
+router.get('/room/:roomId/highest', biddingController.getHighestBid);
 
 export default router; 

@@ -1,101 +1,71 @@
 import { Request, Response } from 'express';
-import Bid from '../model/bid.model';
-import { StringCodec } from 'nats';
-import mongoose from 'mongoose';
+import { ValidationService } from '../service/validation.service';
+import { BidService } from '../service/bid.service';
+import {  handleError } from '../service/error.service';
 
-export const placeBid = async (req: Request, res: Response) => {
-  try {
-    const { roomId, userId, amount, username } = req.body;
-    
-    if (!roomId || !userId || !amount || amount <= 0 || !username) {
-      return res.status(400).json({ message: 'Invalid bid data' });
+export class BiddingController {
+    placeBid = async (req: Request, res: Response) => {
+        try {
+            // Validate bid input
+            const { roomObjectId } = ValidationService.validateBidInput(req);
+            const { userId, amount, username } = req.body;
+            
+            // Create bid
+            const bid = await BidService.createBid(roomObjectId, userId, amount, username);
+            
+            res.status(201).json(bid);
+        } catch (error) {
+            const appError = handleError(error);
+            console.error('Error placing bid:', appError);
+            res.status(appError.statusCode).json({ 
+                success: false,
+                message: appError.message 
+            });
+        }
     }
     
-    // Convert roomId to ObjectId if it's a valid one
-    // If roomId isn't a valid ObjectId format, this will throw an error 
-    // that will be caught and handled properly
-    let roomObjectId;
-    try {
-      roomObjectId = new mongoose.Types.ObjectId(roomId);
-    } catch (error) {
-      return res.status(400).json({ message: 'Invalid room ID format' });
+    getBidsByRoom = async (req: Request, res: Response) => {
+        try {
+            const roomId = req.params.roomId;
+            const roomObjectId = ValidationService.validateRoomId(roomId);
+            
+            const bids = await BidService.getBidsByRoom(roomObjectId);
+            
+            res.status(200).json({
+                success: true,
+                bids
+            });
+        } catch (error) {
+            const appError = handleError(error);
+            console.error('Error fetching bids:', appError);
+            res.status(appError.statusCode).json({ 
+                success: false,
+                message: appError.message 
+            });
+        }
     }
     
-    // Create new bid with userId as string
-    const bid = new Bid({
-      roomId: roomObjectId,
-      userId, // Keep as string
-      amount,
-      username,
-      timestamp: new Date()
-    });
-    
-    await bid.save();
-    
-    // Publish bid event to NATS
-    if (global.natsClient) {
-      const sc = StringCodec();
-      await global.natsClient.publish('bid.placed', sc.encode(JSON.stringify({
-        roomId,
-        userId,
-        amount,
-        username,
-        bidId: bid._id,
-        timestamp: bid.timestamp
-      })));
+    getHighestBid = async (req: Request, res: Response) => {
+        try {
+            const roomId = req.params.roomId;
+            const roomObjectId = ValidationService.validateRoomId(roomId);
+            
+            const highestBid = await BidService.getHighestBid(roomObjectId);
+            
+            res.status(200).json({
+                success: true,
+                bid: highestBid
+            });
+        } catch (error) {
+            const appError = handleError(error);
+            console.error('Error fetching highest bid:', appError);
+            res.status(appError.statusCode).json({ 
+                success: false,
+                message: appError.message 
+            });
+        }
     }
-    
-    res.status(201).json(bid);
-  } catch (error) {
-    console.error('Error placing bid:', error);
-    res.status(500).json({ message: 'Error placing bid' });
-  }
-};
+}
 
-export const getBidsByRoom = async (req: Request, res: Response) => {
-  try {
-    const roomId = req.params.roomId;
-    
-    // Validate roomId is a valid ObjectId
-    let roomObjectId;
-    try {
-      roomObjectId = new mongoose.Types.ObjectId(roomId);
-    } catch (error) {
-      return res.status(400).json({ message: 'Invalid room ID format' });
-    }
-    
-    // Find bids by roomId as ObjectId
-    const bids = await Bid.find({ roomId: roomObjectId }).sort({ timestamp: -1 });
-    
-    res.status(200).json(bids);
-  } catch (error) {
-    console.error('Error fetching bids:', error);
-    res.status(500).json({ message: 'Error fetching bids' });
-  }
-};
-
-export const getHighestBid = async (req: Request, res: Response) => {
-  try {
-    const roomId = req.params.roomId;
-    
-    // Validate roomId is a valid ObjectId
-    let roomObjectId;
-    try {
-      roomObjectId = new mongoose.Types.ObjectId(roomId);
-    } catch (error) {
-      return res.status(400).json({ message: 'Invalid room ID format' });
-    }
-    
-    // Find highest bid for the room using ObjectId
-    const highestBid = await Bid.findOne({ roomId: roomObjectId }).sort({ amount: -1 });
-    
-    if (!highestBid) {
-      return res.status(404).json({ message: 'No bids found for this room' });
-    }
-    
-    res.status(200).json(highestBid);
-  } catch (error) {
-    console.error('Error fetching highest bid:', error);
-    res.status(500).json({ message: 'Error fetching highest bid' });
-  }
-}; 
+// Export controller instance for routes
+export const biddingController = new BiddingController(); 
