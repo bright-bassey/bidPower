@@ -111,13 +111,16 @@ The application will be available at:
 #### Manual Testing
 
 
-1. Create a new auction room
-2. Join an existing auction room
+1. Create a new auction room using the blue plus button
+2. Once its time for the auction, Join the  auction room. (To simulate multiple people in a chat, you can join from multiple browser windows)
 3. Chat in bidding rooms
 4. Place bids on items
 5. Receive real-time updates
 
+#### Room for Improvement
+Due to time constraints, I spent more time on the backend services orchestration, that's why I chose a very simple implementation for the frontend.
 
+The frontend is still buggy, but with more time, I can implement better state management, and a more impressive UI/UX that will gamify the experience for the end user.
 
 
 1. Navigate to the service directory:
