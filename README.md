@@ -123,61 +123,8 @@ Due to time constraints, I spent more time on the backend services orchestration
 The frontend is still buggy, but with more time, I can implement better state management, and a more impressive UI/UX that will gamify the experience for the end user.
 
 
-1. Navigate to the service directory:
 
-```bash
-cd backend/[service-name]
-```
 
-2. Install dependencies:
-
-```bash
-npm install
-```
-
-3. Run tests:
-
-```bash
-npm test
-```
-
-For frontend tests:
-
-```bash
-cd frontend
-npm install
-npm test
-```
-
-#### API Testing
-
-You can use the following endpoints for API testing:
-
-Auth Service (4000):
-
-- POST /api/auth/register - Register new user
-- POST /api/auth/login - User login
-
-Room Service (4001):
-
-- GET /api/rooms - List all rooms
-- POST /api/rooms - Create new room
-- GET /api/rooms/:id - Get room details
-
-Bidding Service (4002):
-
-- POST /api/bids - Place a bid
-- GET /api/bids/room/:roomId - Get room bids
-
-Invoice Service (4004):
-
-- GET /api/invoices - Get user invoices
-- GET /api/invoices/:id - Get invoice details
-
-Payment Service (4005):
-
-- POST /api/payments - Process payment
-- GET /api/payments/invoice/:invoiceId - Get payment history
 
 
 
