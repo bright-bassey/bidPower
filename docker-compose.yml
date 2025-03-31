@@ -1,0 +1,149 @@
+services:
+  auth-service:
+    build:
+      context: ./backend/auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/bidpower
+      - JWT_SECRET=your_jwt_secret_here
+      - JWT_EXPIRES_IN=24h
+      - PORT=4000
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend/auth-service:/usr/src/app
+      - /usr/src/app/node_modules
+
+  bidding-service:
+    build:
+      context: ./backend/bidding-service
+      dockerfile: Dockerfile
+    ports:
+      - "4002:4002"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/bidpower
+      - PORT=4002
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - mongodb
+      - nats
+      - room-service
+    volumes:
+      - ./backend/bidding-service:/usr/src/app
+      - /usr/src/app/node_modules
+
+  invoice-service:
+    build:
+      context: ./backend/invoice-service
+      dockerfile: Dockerfile
+    ports:
+      - "4004:4004"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/bidpower
+      - PORT=4004
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - mongodb
+      - nats
+      - notification-service
+    volumes:
+      - ./backend/invoice-service:/usr/src/app
+      - /usr/src/app/node_modules
+
+  payment-service:
+    build:
+      context: ./backend/payment-service
+      dockerfile: Dockerfile
+    ports:
+      - "4005:4005"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/bidpower
+      - PORT=4005
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - mongodb
+      - nats
+      - invoice-service
+    volumes:
+      - ./backend/payment-service:/usr/src/app
+      - /usr/src/app/node_modules
+
+  notification-service:
+    build:
+      context: ./backend/notification-service
+      dockerfile: Dockerfile
+    ports:
+      - "4003:4003"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/bidpower
+      - PORT=4003
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - mongodb
+      - nats
+      - bidding-service
+    volumes:
+      - ./backend/notification-service:/usr/src/app
+      - /usr/src/app/node_modules
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:4000
+      - VITE_ROOM_SERVICE_URL=http://localhost:4001
+      - VITE_BIDDING_SERVICE_URL=http://localhost:4002
+      - VITE_NOTIFICATION_SERVICE_URL=http://localhost:4003
+      - VITE_INVOICE_SERVICE_URL=http://localhost:4004
+      - VITE_PAYMENT_SERVICE_URL=http://localhost:4005
+    depends_on:
+      - auth-service
+      - room-service
+      - bidding-service
+      - notification-service
+      - invoice-service
+      - payment-service
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  room-service:
+    build:
+      context: ./backend/room-service
+      dockerfile: Dockerfile
+    ports:
+      - "4001:4001"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/bidpower
+      - PORT=4001
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - mongodb
+      - nats
+    volumes:
+      - ./backend/room-service:/usr/src/app
+      - /usr/src/app/node_modules
+
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+
+volumes:
+  mongodb_data:
