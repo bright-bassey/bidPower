@@ -42,7 +42,7 @@ export class AuthController {
       ValidationService.validateLoginInput(req);
       const { email, password } = req.body;
 
-      // Validate login credentials
+      // Validate login credentialss
       const user = await UserService.validateUserCredentials(email, password);
       const token = TokenService.generateToken(user._id.toString());
 
