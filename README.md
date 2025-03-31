@@ -1,6 +1,11 @@
 # BidPower - Real-Time Auction Platform
 
-BidPower is a microservices-based real-time auction platform that allows users to participate in live auctions, place bids, and process payments.
+BidPower is a microservices-based real-time auction platform that allows users to participate in live auctions, create bidding rooms,  place bids, and process payments.
+
+![Screenshot](https://drive.google.com/file/d/1i2HxOIcHuSz9nJvsIoxsi4CWR-3R7JCa/view?usp=sharing)
+![ScreenShot](https://drive.google.com/file/d/1NVrgnesrJTFqT_HcTR50onoIRLoFiMhP/view?usp=sharing)
+![ScreenShot](https://drive.google.com/file/d/1v0t4XhneFzBtxK5DSdBSqABS-uevb9We/view?usp=sharing)
+![ScreenShot](https://drive.google.com/file/d/1GGfPItlFkexfvUskzYA9D3l-JLMTzZiO/view?usp=sharing)
 
 ## Prerequisites
 
@@ -105,16 +110,15 @@ The application will be available at:
 
 #### Manual Testing
 
-1. Register a new user account
-2. Create a new auction room
-3. Join an existing auction room
+
+1. Create a new auction room
+2. Join an existing auction room
+3. Chat in bidding rooms
 4. Place bids on items
-5. Test real-time updates
-6. Process payments for won auctions
+5. Receive real-time updates
 
-#### Automated Testing
 
-Each service contains its own test suite. To run tests for a specific service:
+
 
 1. Navigate to the service directory:
 
@@ -172,32 +176,8 @@ Payment Service (4005):
 - POST /api/payments - Process payment
 - GET /api/payments/invoice/:invoiceId - Get payment history
 
-### 5. Development
 
-For local development without Docker:
 
-1. Start MongoDB and NATS locally
-2. Navigate to each service directory and run:
-
-```bash
-npm install
-npm run dev
-```
-
-3. For the frontend:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### 6. Troubleshooting
-
-- If services fail to start, check if all required ports are available
-- Ensure MongoDB is running and accessible
-- Check NATS connection in service logs
-- Verify all environment variables are properly set
 
 ## Architecture
 
