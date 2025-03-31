@@ -1,19 +1,27 @@
 import { Request, Response } from 'express';
-import Notification from '../model/notification.model';
+import { ValidationService } from '../service/validation.service';
+import { NotificationService } from '../service/notification.service';
+import { handleError } from '../service/error.service';
 
 // Get all unread notifications for a user
 export const getUserNotifications = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
-    const notifications = await Notification.find({
-      recipientType: 'user',
-      recipientId: userId
-    }).sort({ createdAt: -1 });
+    ValidationService.validateIdParam(userId);
     
-    res.status(200).json(notifications);
+    const notifications = await NotificationService.getUserNotifications(userId);
+    
+    res.status(200).json({
+      success: true,
+      notifications
+    });
   } catch (error) {
-    console.error('Error fetching user notifications:', error);
-    res.status(500).json({ message: 'Error fetching notifications' });
+    const appError = handleError(error);
+    console.error('Error fetching user notifications:', appError);
+    res.status(appError.statusCode).json({
+      success: false,
+      message: appError.message
+    });
   }
 };
 
@@ -21,15 +29,21 @@ export const getUserNotifications = async (req: Request, res: Response) => {
 export const getRoomNotifications = async (req: Request, res: Response) => {
   try {
     const roomId = req.params.roomId;
-    const notifications = await Notification.find({
-      recipientType: 'room',
-      recipientId: roomId
-    }).sort({ createdAt: -1 });
+    ValidationService.validateIdParam(roomId);
     
-    res.status(200).json(notifications);
+    const notifications = await NotificationService.getRoomNotifications(roomId);
+    
+    res.status(200).json({
+      success: true,
+      notifications
+    });
   } catch (error) {
-    console.error('Error fetching room notifications:', error);
-    res.status(500).json({ message: 'Error fetching notifications' });
+    const appError = handleError(error);
+    console.error('Error fetching room notifications:', appError);
+    res.status(appError.statusCode).json({
+      success: false,
+      message: appError.message
+    });
   }
 };
 
@@ -37,40 +51,41 @@ export const getRoomNotifications = async (req: Request, res: Response) => {
 export const markAsRead = async (req: Request, res: Response) => {
   try {
     const notificationId = req.params.id;
-    const notification = await Notification.findById(notificationId);
+    ValidationService.validateIdParam(notificationId);
     
-    if (!notification) {
-      return res.status(404).json({ message: 'Notification not found' });
-    }
+    const notification = await NotificationService.markAsRead(notificationId);
     
-    notification.read = true;
-    await notification.save();
-    
-    res.status(200).json(notification);
+    res.status(200).json({
+      success: true,
+      notification
+    });
   } catch (error) {
-    console.error('Error marking notification as read:', error);
-    res.status(500).json({ message: 'Error updating notification' });
+    const appError = handleError(error);
+    console.error('Error marking notification as read:', appError);
+    res.status(appError.statusCode).json({
+      success: false,
+      message: appError.message
+    });
   }
 };
 
-// Create a notification (typically used internally, but exposed as API for testing)
+// Create a notification 
 export const createNotification = async (req: Request, res: Response) => {
   try {
+    ValidationService.validateNotificationCreation(req);
+    
     const { type, title, message, recipientType, recipientId, data } = req.body;
     
-    const notification = new Notification({
+    const notification = await NotificationService.createNotification({
       type,
       title,
       message,
       recipientType,
       recipientId,
-      data,
-      read: false
+      data
     });
     
-    await notification.save();
-    
-    // If we have an active socket connection for this recipient, emit notification
+    // for active socket connection for a recipient, emit notification
     const io = req.app.get('socketio');
     if (io) {
       if (recipientType === 'user') {
@@ -80,9 +95,16 @@ export const createNotification = async (req: Request, res: Response) => {
       }
     }
     
-    res.status(201).json(notification);
+    res.status(201).json({
+      success: true,
+      notification
+    });
   } catch (error) {
-    console.error('Error creating notification:', error);
-    res.status(500).json({ message: 'Error creating notification' });
+    const appError = handleError(error);
+    console.error('Error creating notification:', appError);
+    res.status(appError.statusCode).json({
+      success: false,
+      message: appError.message
+    });
   }
 }; 
