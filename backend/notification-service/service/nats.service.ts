@@ -19,7 +19,7 @@ export class NatsService {
       this.nc = await natsConnect({ servers: url });
       console.log('Connected to NATS');
       
-      // Store NATS client for legacy code that might need it
+      
       global.natsClient = this.nc;
     } catch (error) {
       console.error('NATS connection error:', error);
